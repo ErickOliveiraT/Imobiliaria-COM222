@@ -52,4 +52,35 @@ function getVendas() {
     });
 }
 
-module.exports = { storeVenda, getVendas }
+function getVendasVendedor(creci) {
+    return new Promise(async (resolve, reject) => {
+        let con = await database.getConnection();
+
+        con.connect(function (err) {
+            if (err) reject({ error: err });
+
+            let sql = `SELECT * from vendas WHERE creci_corretor='${creci}'`;
+
+            con.query(sql, function (err, result) {
+                if (err) {
+                    let error = err;
+                    return reject({ error: error });
+                }
+                let vendas = new Array();
+                result.forEach(data => {
+                    vendas.push({
+                        codigo: data.codigo,
+                        nome_comprador: data.nome_comprador,
+                        data_venda: data.data_venda,
+                        valor: data.valor,
+                        creci_corretor: data.creci_corretor,
+                        codigo_imovel: data.codigo_imovel
+                    });
+                });
+                resolve(vendas);
+            });
+        });
+    });
+}
+
+module.exports = { storeVenda, getVendas, getVendasVendedor }

@@ -44,7 +44,7 @@ app.post('/imoveis', async (req, res) => {
             if (response.stored) return res.status(201).send(response);
             res.status(400).send(response);
         })
-        .catch((error) => { res.status(400).send(error) });
+        .catch((error) => { res.status(500).send(error) });
 });
 
 // Consulta imóveis
@@ -53,7 +53,7 @@ app.get('/imoveis', async (req, res) => {
         .then((response) => {
             return res.status(200).send(response);
         })
-        .catch((error) => { res.status(400).send(error) });
+        .catch((error) => { res.status(500).send(error) });
 });
 
 // Consulta imóvel pelo código
@@ -66,7 +66,7 @@ app.get('/imoveis/:codigo?', async (req, res) => {
         .then((response) => {
             return res.status(200).send(response);
         })
-        .catch((error) => { res.status(400).send(error) });
+        .catch((error) => { res.status(500).send(error) });
 });
 
 // Atualiza imóvel
@@ -101,7 +101,7 @@ app.put('/imoveis/:codigo?', async (req, res) => {
             if (response.updated) return res.status(200).send(response);
             res.status(400).send(response);
         })
-        .catch((error) => { res.status(400).send(error) });
+        .catch((error) => { res.status(500).send(error) });
 });
 
 // Deleta imóvel
@@ -115,7 +115,7 @@ app.delete('/imoveis/:codigo?', async (req, res) => {
             if (response.stored) return res.status(200).send(response);
             res.status(400).send(response);
         })
-        .catch((error) => { res.status(400).send(error) });
+        .catch((error) => { res.status(500).send(error) });
 });
 
 // Cadastra corretor
@@ -150,7 +150,7 @@ app.post('/corretores', async (req, res) => {
             if (response.stored) return res.status(201).send(response);
             res.status(400).send(response);
         })
-        .catch((error) => { res.status(400).send(error) });
+        .catch((error) => { res.status(500).send(error) });
 });
 
 // Consulta Corretor
@@ -159,7 +159,7 @@ app.get('/corretores', async (req, res) => {
         .then((response) => {
             return res.status(200).send(response);
         })
-        .catch((error) => { res.status(400).send(error) });
+        .catch((error) => { res.status(500).send(error) });
 });
 
 // Consulta corretor pelo creci
@@ -172,7 +172,7 @@ app.get('/corretores/:creci?', async (req, res) => {
         .then((response) => {
             return res.status(200).send(response);
         })
-        .catch((error) => { res.status(400).send(error) });
+        .catch((error) => { res.status(500).send(error) });
 });
 
 // Atualiza Corretor
@@ -196,7 +196,7 @@ app.put('/corretores/:creci?', async (req, res) => {
             if (response.updated) return res.status(200).send(response);
             res.status(400).send(response);
         })
-        .catch((error) => { res.status(400).send(error) });
+        .catch((error) => { res.status(500).send(error) });
 });
 
 // Deleta Corretor
@@ -210,7 +210,7 @@ app.delete('/corretores/:creci?', async (req, res) => {
             if (response.deleted) return res.status(200).send(response);
             res.status(400).send(response);
         })
-        .catch((error) => { res.status(400).send(error) });
+        .catch((error) => { res.status(500).send(error) });
 });
 
 //Rota para criação de vendas
@@ -255,6 +255,21 @@ app.post('/vendas', async (req, res) => {
 //Rota para consulta das vendas
 app.get('/vendas', async (req, res) => {
     vendas.getVendas()
+    .then(response => {
+        return res.status(200).send(response);
+    })
+    .catch(err => {
+        return res.status(500).send(err);
+    })
+});
+
+//Rota para consulta das vendas por vendedor
+app.get('/vendas/:creci?', async (req, res) => {
+    const creci = req.params.creci;
+
+    if (!creci || creci.trim() == '') return res.status(400).send({ error: 'Creci não informado' });
+
+    vendas.getVendasVendedor(creci)
     .then(response => {
         return res.status(200).send(response);
     })
