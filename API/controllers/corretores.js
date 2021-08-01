@@ -99,4 +99,21 @@ function updateCorretor(corretor) {
     });
 }
 
-module.exports = { storeCorretor, getCorretores, getCorretor, updateCorretor }
+function deleteCorretor(creci) {
+    return new Promise(async (resolve) => {
+        let con = await database.getConnection();
+
+        con.connect(function (err) {
+            if (err) resolve({ error: err });
+
+            let sql = `DELETE FROM corretores WHERE creci=${creci}`;
+
+            con.query(sql, async function (err, result) {
+                if (err) resolve({ deleted: false, error: err });
+                resolve({ deleted: result.affectedRows > 0 ? true : false });
+            });
+        });
+    });
+}
+
+module.exports = { storeCorretor, getCorretores, getCorretor, updateCorretor, deleteCorretor }

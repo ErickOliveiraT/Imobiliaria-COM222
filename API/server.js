@@ -8,6 +8,7 @@ app.unsubscribe(cors());
 
 const imoveis = require('./controllers/imoveis');
 const corretores = require('./controllers/corretores');
+const vendas = require('./controllers/vendas');
 
 app.get('/', function (req, res) {
     res.sendStatus(200);
@@ -21,13 +22,13 @@ app.post('/imoveis', async (req, res) => {
     const nome_vendedor = req.body.nome_vendedor;
     const preco = req.body.preco;
     const imagem = req.body.imagem;
-    const data = req.body.data;
+    const data_cadastro = req.body.data_cadastro;
 
     if (!tipo || !tipos.includes(tipo)) return res.status(400).send({ error: 'Tipo de imóvel inválido ou não especificado' });
     if (!descricao || descricao == '') return res.status(400).send({ error: 'Descrição não informada' });
     if (!nome_vendedor || nome_vendedor == '') return res.status(400).send({ error: 'Nome do vendedor não informado' });
     if (!preco) return res.status(400).send({ error: 'Preço não informado' });
-    if (!data || data == '') return res.status(400).send({ error: 'Data não informada' });
+    if (!data_cadastro || data_cadastro == '') return res.status(400).send({ error: 'Data de cadastro não informada' });
 
     const imovel = {
         tipo,
@@ -35,12 +36,12 @@ app.post('/imoveis', async (req, res) => {
         nome_vendedor,
         preco,
         imagem,
-        data
+        data_cadastro
     };
 
     imoveis.storeImovel(imovel)
         .then((response) => {
-            if (response.stored) return res.status(201).send(JSON.stringify(response));
+            if (response.stored) return res.status(201).send(response);
             res.status(400).send(response);
         })
         .catch((error) => { res.status(400).send(error) });
@@ -50,8 +51,7 @@ app.post('/imoveis', async (req, res) => {
 app.get('/imoveis', async (req, res) => {
     imoveis.getImoveis()
         .then((response) => {
-            if (response.stored) return res.status(200).send(JSON.stringify(response));
-            res.status(400).send(response);
+            return res.status(200).send(response);
         })
         .catch((error) => { res.status(400).send(error) });
 });
@@ -64,8 +64,7 @@ app.get('/imoveis/:codigo?', async (req, res) => {
 
     imoveis.getImovel(codigo)
         .then((response) => {
-            if (response.stored) return res.status(200).send(JSON.stringify(response));
-            res.status(400).send(response);
+            return res.status(200).send(response);
         })
         .catch((error) => { res.status(400).send(error) });
 });
@@ -77,13 +76,15 @@ app.put('/imoveis/:codigo?', async (req, res) => {
     const nome_vendedor = req.body.nome_vendedor;
     const preco = req.body.preco;
     const imagem = req.body.imagem;
-    const data = req.body.data;
+    const data_cadastro = req.body.data_cadastro;
+    const disponivel = req.body.disponivel;
 
     if (!codigo || codigo.trim() == '') return res.status(400).send({ error: 'Código não informado' });
     if (!descricao || descricao == '') return res.status(400).send({ error: 'Descrição não informada' });
     if (!nome_vendedor || nome_vendedor == '') return res.status(400).send({ error: 'Nome do vendedor não informado' });
     if (!preco) return res.status(400).send({ error: 'Preço não informado' });
-    if (!data || data == '') return res.status(400).send({ error: 'Data não informada' });
+    if (!data_cadastro || data_cadastro == '') return res.status(400).send({ error: 'Data de cadastro não informada' });
+    if (!disponivel) return res.status(400).send({ error: 'Disponilidade não informada' });
 
     const imovel = {
         codigo,
@@ -91,12 +92,13 @@ app.put('/imoveis/:codigo?', async (req, res) => {
         nome_vendedor,
         preco,
         imagem,
-        data
+        data_cadastro,
+        disponivel
     };
 
     imoveis.updateImovel(imovel)
         .then((response) => {
-            if (response.updated) return res.status(200).send(JSON.stringify(response));
+            if (response.updated) return res.status(200).send(response);
             res.status(400).send(response);
         })
         .catch((error) => { res.status(400).send(error) });
@@ -110,7 +112,7 @@ app.delete('/imoveis/:codigo?', async (req, res) => {
 
     imoveis.deleteImovel(codigo)
         .then((response) => {
-            if (response.stored) return res.status(200).send(JSON.stringify(response));
+            if (response.stored) return res.status(200).send(response);
             res.status(400).send(response);
         })
         .catch((error) => { res.status(400).send(error) });
@@ -145,7 +147,7 @@ app.post('/corretores', async (req, res) => {
 
     corretores.storeCorretor(corretor)
         .then((response) => {
-            if (response.stored) return res.status(201).send(JSON.stringify(response));
+            if (response.stored) return res.status(201).send(response);
             res.status(400).send(response);
         })
         .catch((error) => { res.status(400).send(error) });
@@ -155,8 +157,7 @@ app.post('/corretores', async (req, res) => {
 app.get('/corretores', async (req, res) => {
     corretores.getCorretores()
         .then((response) => {
-            if (response.stored) return res.status(200).send(JSON.stringify(response));
-            res.status(400).send(response);
+            return res.status(200).send(response);
         })
         .catch((error) => { res.status(400).send(error) });
 });
@@ -169,8 +170,7 @@ app.get('/corretores/:creci?', async (req, res) => {
 
     corretores.getCorretor(creci)
         .then((response) => {
-            if (response.stored) return res.status(200).send(JSON.stringify(response));
-            res.status(400).send(response);
+            return res.status(200).send(response);
         })
         .catch((error) => { res.status(400).send(error) });
 });
@@ -192,14 +192,76 @@ app.put('/corretores/:creci?', async (req, res) => {
     }
 
     corretores.updateCorretor(corretor)
-    .then((response) => {
-        if (response.updated) return res.status(200).send(JSON.stringify(response));
-        res.status(400).send(response);
-    })
-    .catch((error) => { res.status(400).send(error) });
+        .then((response) => {
+            if (response.updated) return res.status(200).send(response);
+            res.status(400).send(response);
+        })
+        .catch((error) => { res.status(400).send(error) });
 });
 
+// Deleta Corretor
+app.delete('/corretores/:creci?', async (req, res) => {
+    const creci = req.params.creci;
 
+    if (!creci || creci.trim() == '') return res.status(400).send({ error: 'Creci não informado' });
+
+    corretores.deleteCorretor(creci)
+        .then((response) => {
+            if (response.deleted) return res.status(200).send(response);
+            res.status(400).send(response);
+        })
+        .catch((error) => { res.status(400).send(error) });
+});
+
+//Rota para criação de vendas
+app.post('/vendas', async (req, res) => {
+    const nome_comprador = req.body.nome_comprador;
+    const data_venda = req.body.data_venda;
+    const valor = req.body.valor;
+    const creci_corretor = req.body.creci_corretor;
+    const codigo_imovel = req.body.codigo_imovel;
+
+    if (!nome_comprador) return res.status(400).send({ error: 'Nome do comprado não informado' });
+    if (!data_venda) return res.status(400).send({ error: 'Data da venda não informada' });
+    if (!valor) return res.status(400).send({ error: 'Valor da venda não informado' });
+    if (!creci_corretor) return res.status(400).send({ error: 'CRECI do corretor não informado' });
+    if (!codigo_imovel) return res.status(400).send({ error: 'Código do imóvel não informado' });
+
+    const venda = {
+        nome_comprador,
+        data_venda,
+        valor,
+        creci_corretor,
+        codigo_imovel
+    }
+
+    vendas.storeVenda(venda)
+        .then(async (response) => {
+            if (response.stored) {
+                try {
+                    await imoveis.setNaoDisponivel(venda.codigo_imovel);
+                    return res.status(201).send(response);
+                }
+                catch (e) {
+                    console.error('Erro ao alterar disponibilidade do imóvel: ', err);
+                    return res.status(201).send(response);
+                }
+            }
+            res.status(400).send(response);
+        })
+        .catch((error) => { res.status(400).send(error) });
+});
+
+//Rota para consulta das vendas
+app.get('/vendas', async (req, res) => {
+    vendas.getVendas()
+    .then(response => {
+        return res.status(200).send(response);
+    })
+    .catch(err => {
+        return res.status(500).send(err);
+    })
+});
 
 const port = process.env.SERVER_PORT || 3000;
 app.listen(port);

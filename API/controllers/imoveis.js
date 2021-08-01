@@ -7,8 +7,8 @@ function storeImovel(imovel) {
         con.connect(function (err) {
             if (err) reject({ stored: false, error: err });
 
-            let sql = 'INSERT INTO imoveis (tipo,descricao,nome_vendedor,preco,imagem,data) VALUES('
-                + `'${imovel.tipo}', '${imovel.descricao}', '${imovel.nome_vendedor}', ${imovel.preco}, '${imovel.imagem}', '${imovel.data}')`;
+            let sql = 'INSERT INTO imoveis (tipo,descricao,nome_vendedor,preco,imagem,data_cadastro,disponivel) VALUES('
+                + `'${imovel.tipo}', '${imovel.descricao}', '${imovel.nome_vendedor}', ${imovel.preco}, '${imovel.imagem}', '${imovel.data_cadastro}', 'S')`;
 
             con.query(sql, function (err, result) {
                 if (err) {
@@ -44,6 +44,7 @@ function getImoveis() {
                         preco: data.preco,
                         imagem: data.imagem,
                         data: data.data,
+                        disponivel: data.disponivel
                     });
                 });
                 resolve(imoveis);
@@ -74,6 +75,7 @@ function getImovel(codigo) {
                     preco: result[0].preco,
                     imagem: result[0].imagem,
                     data: result[0].data,
+                    disponivel: result[0].disponivel
                 });
             });
         });
@@ -87,11 +89,28 @@ function updateImovel(imovel) {
         con.connect(function (err) {
             if (err) resolve({ error: err });
 
-            let sql = `UPDATE imoveis SET descricao='${imovel.descricao}', nome_vendedor='${imovel.nome_vendedor}', preco=${imovel.preco}, imagem='${imovel.imagem}', data='${imovel.data}' WHERE codigo=${imovel.codigo}`;
+            let sql = `UPDATE imoveis SET descricao='${imovel.descricao}', nome_vendedor='${imovel.nome_vendedor}', preco=${imovel.preco}, imagem='${imovel.imagem}', data_cadastro='${imovel.data_cadastro}', disponivel='${imovel.disponivel}' WHERE codigo=${imovel.codigo}`;
 
             con.query(sql, async function (err, result) {
                 if (err) resolve({ updated: false, error: err });
                 resolve({ updated: true, new_imovel: imovel });
+            });
+        });
+    });
+}
+
+function setNaoDisponivel(codigo) {
+    return new Promise(async (resolve) => {
+        let con = await database.getConnection();
+
+        con.connect(function (err) {
+            if (err) resolve({ error: err });
+
+            let sql = `UPDATE imoveis SET disponivel='N' WHERE codigo=${codigo}`;
+
+            con.query(sql, async function (err, result) {
+                if (err) resolve({ updated: false, error: err });
+                resolve({ updated: result.affectedRows > 0 ? true: false });
             });
         });
     });
@@ -114,4 +133,4 @@ function deleteImovel(codigo) {
     });
 }
 
-module.exports = { storeImovel, getImoveis, getImovel, updateImovel, deleteImovel }
+module.exports = { storeImovel, getImoveis, getImovel, updateImovel, deleteImovel, setNaoDisponivel }
