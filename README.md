@@ -1,6 +1,6 @@
 # Imobiliária COM222
 
-API desenvolvida para ser utilizada no projeto final de COM222 - Desenvolvimento Web.
+Projeto final desenvolvido para a matéria de COM222 - Desenvolvimento Web.
 
 
 ## Tecnologias
