@@ -4,7 +4,7 @@ const app = express();
 require('dotenv').config();
 
 app.use(express.json());
-app.unsubscribe(cors());
+app.use(cors());
 
 const imoveis = require('./controllers/imoveis');
 const corretores = require('./controllers/corretores');
@@ -249,7 +249,7 @@ app.post('/vendas', async (req, res) => {
             }
             res.status(400).send(response);
         })
-        .catch((error) => { res.status(400).send(error) });
+        .catch((error) => { res.status(500).send(error) });
 });
 
 //Rota para consulta das vendas
