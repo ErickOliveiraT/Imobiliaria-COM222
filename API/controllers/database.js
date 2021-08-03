@@ -1,12 +1,12 @@
 const mysql = require('mysql');
-require('dotenv').config();
+const secrets = require('../credentials');
 
 async function getConnection() {
     return mysql.createConnection({
-        host: process.env.MYSQL_HOST,
-        user: process.env.MYSQL_USER,
-        password: process.env.MYSQL_PASS,
-        database: process.env.MYSQL_DATABASE
+        host: secrets.MYSQL_HOST,
+        user: secrets.MYSQL_USER,
+        password: secrets.MYSQL_PASS,
+        database: secrets.MYSQL_DATABASE
     });
 }
 
