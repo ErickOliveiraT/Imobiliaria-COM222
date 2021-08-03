@@ -43,8 +43,9 @@ function getImoveis() {
                         nome_vendedor: data.nome_vendedor,
                         preco: data.preco,
                         imagem: data.imagem,
-                        data: data.data,
-                        disponivel: data.disponivel
+                        disponivel: data.disponivel,
+                        data_cadastro: data.data_cadastro,
+                        codigo: data.codigo
                     });
                 });
                 resolve(imoveis);
@@ -74,8 +75,9 @@ function getImovel(codigo) {
                     nome_vendedor: result[0].nome_vendedor,
                     preco: result[0].preco,
                     imagem: result[0].imagem,
-                    data: result[0].data,
-                    disponivel: result[0].disponivel
+                    data_cadastro: result[0].data_cadastro,
+                    disponivel: result[0].disponivel,
+                    codigo: result[0].codigo
                 });
             });
         });
