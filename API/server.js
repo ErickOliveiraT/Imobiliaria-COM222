@@ -254,9 +254,9 @@ app.post('/vendas', async (req, res) => {
 
 //Rota para consulta das vendas
 app.get('/vendas/:data?', async (req, res) => {
-    const data = req.params.data || null;
+    const data = req.params.data || '';
 
-    if (!data || data == '') {
+    if (!data) {
         vendas.getVendas()
             .then(response => {
                 return res.status(200).send(response);
@@ -267,28 +267,48 @@ app.get('/vendas/:data?', async (req, res) => {
     }
     else {
         vendas.getVendasByDate(data)
-        .then(response => {
-            return res.status(200).send(response);
-        })
-        .catch(err => {
-            return res.status(500).send(err);
-        })
+            .then(response => {
+                return res.status(200).send(response);
+            })
+            .catch(err => {
+                return res.status(500).send(err);
+            })
     }
 });
 
 //Rota para consulta das vendas por vendedor
-app.get('/vendas/:creci?', async (req, res) => {
+app.get('/vendas/corretor/:creci?/:data?', async (req, res) => {
     const creci = req.params.creci;
+    const data = req.params.data || '';
 
     if (!creci || creci.trim() == '') return res.status(400).send({ error: 'Creci não informado' });
 
-    vendas.getVendasVendedor(creci)
-        .then(response => {
-            return res.status(200).send(response);
+    corretores.getCorretor(creci)
+        .then((corretor) => {
+            let info = { corretor: corretor }
+            if (!data || data == '') {
+                console.log('entrou no if')
+                vendas.getVendasVendedor(creci)
+                    .then(response => {
+                        info.vendas = response;
+                        return res.status(200).send(info);
+                    })
+                    .catch(err => {
+                        return res.status(500).send(err);
+                    })
+            }
+            else {
+                vendas.getVendasVendedorByDate(creci, data)
+                    .then(response => {
+                        info.vendas = response;
+                        return res.status(200).send(info);
+                    })
+                    .catch(err => {
+                        return res.status(500).send(err);
+                    })
+            }
         })
-        .catch(err => {
-            return res.status(500).send(err);
-        })
+        .catch((error) => { res.status(500).send(error) });
 });
 
 const port = process.env.SERVER_PORT || 3000;
