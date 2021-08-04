@@ -311,6 +311,19 @@ app.get('/vendas/corretor/:creci?/:data?', async (req, res) => {
         .catch((error) => { res.status(500).send(error) });
 });
 
+//Rota para consulta de todas as das vendas por vendedor
+app.get('/vendas_por_corretor', async (req, res) => {
+    let _corretores = await corretores.getCorretores();
+    let info = new Array()
+
+    for (let i = 0; i < _corretores.length; i++) {
+        let _vendas = await vendas.getVendasVendedor(_corretores[i].creci);
+        info.push({corretor: _corretores[i], vendas: _vendas});
+    }
+
+    return res.status(200).send(info);
+});
+
 const port = process.env.SERVER_PORT || 3000;
 app.listen(port);
 console.log('Server listening on port ', port);
