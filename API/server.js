@@ -253,14 +253,27 @@ app.post('/vendas', async (req, res) => {
 });
 
 //Rota para consulta das vendas
-app.get('/vendas', async (req, res) => {
-    vendas.getVendas()
-    .then(response => {
-        return res.status(200).send(response);
-    })
-    .catch(err => {
-        return res.status(500).send(err);
-    })
+app.get('/vendas/:data?', async (req, res) => {
+    const data = req.params.data || null;
+
+    if (!data || data == '') {
+        vendas.getVendas()
+            .then(response => {
+                return res.status(200).send(response);
+            })
+            .catch(err => {
+                return res.status(500).send(err);
+            })
+    }
+    else {
+        vendas.getVendasByDate(data)
+        .then(response => {
+            return res.status(200).send(response);
+        })
+        .catch(err => {
+            return res.status(500).send(err);
+        })
+    }
 });
 
 //Rota para consulta das vendas por vendedor
@@ -270,12 +283,12 @@ app.get('/vendas/:creci?', async (req, res) => {
     if (!creci || creci.trim() == '') return res.status(400).send({ error: 'Creci não informado' });
 
     vendas.getVendasVendedor(creci)
-    .then(response => {
-        return res.status(200).send(response);
-    })
-    .catch(err => {
-        return res.status(500).send(err);
-    })
+        .then(response => {
+            return res.status(200).send(response);
+        })
+        .catch(err => {
+            return res.status(500).send(err);
+        })
 });
 
 const port = process.env.SERVER_PORT || 3000;
