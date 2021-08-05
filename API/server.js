@@ -312,12 +312,13 @@ app.get('/vendas/corretor/:creci?/:data?', async (req, res) => {
 });
 
 //Rota para consulta de todas as das vendas por vendedor
-app.get('/vendas_por_corretor', async (req, res) => {
+app.get('/vendas_por_corretor/:data?', async (req, res) => {
+    const data = req.params.data || '';
     let _corretores = await corretores.getCorretores();
     let info = new Array()
 
     for (let i = 0; i < _corretores.length; i++) {
-        let _vendas = await vendas.getVendasVendedor(_corretores[i].creci);
+        let _vendas = await vendas.getVendasVendedorByDate(_corretores[i].creci, data);
         info.push({corretor: _corretores[i], vendas: _vendas});
     }
 
